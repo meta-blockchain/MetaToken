@@ -1,11 +1,11 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.6.0 <0.8.0;
 
-import "./Context.sol";
+import "./Ownable.sol";
 import "./IERC20.sol";
 import "./SafeMath.sol";
 
-contract ERC20 is Context, IERC20 {
+contract ERC20 is Ownable, IERC20 {
     using SafeMath for uint256;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
